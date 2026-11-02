@@ -17,9 +17,13 @@ jobs:
 
       - name: Ekstrak zip proyek
         run: |
-          ls -la
           unzip -q DulzFluu*.zip -d proyek
           ls -la proyek
+
+      - name: Pakai mirror Maven Google
+        run: |
+          sed -i 's#mavenCentral()#maven { url = uri("https://maven-central.storage-download.googleapis.com/maven2/") }\n        mavenCentral()#' proyek/settings.gradle.kts
+          cat proyek/settings.gradle.kts
 
       - name: Pasang JDK 17
         uses: actions/setup-java@v4
@@ -37,7 +41,14 @@ jobs:
 
       - name: Build APK
         working-directory: proyek
-        run: gradle assembleDebug --no-daemon --console=plain
+        run: |
+          ok=0
+          for i in 1 2 3; do
+            if gradle assembleDebug --no-daemon --console=plain; then ok=1; break; fi
+            echo "Build gagal, ulangi percobaan ke-$((i+1)) setelah 30 detik"
+            sleep 30
+          done
+          [ "$ok" = 1 ]
 
       - name: Ganti nama APK
         working-directory: proyek
