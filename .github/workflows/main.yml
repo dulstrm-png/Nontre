@@ -29,8 +29,11 @@ jobs:
         with:
           gradle-version: 8.7
 
+      - name: Cek isi repo
+        run: ls -la
+
       - name: Build APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: gradle assembleDebug --no-daemon --console=plain
 
       - name: Ganti nama APK
         run: cp app/build/outputs/apk/debug/app-debug.apk DulzFluu.apk
